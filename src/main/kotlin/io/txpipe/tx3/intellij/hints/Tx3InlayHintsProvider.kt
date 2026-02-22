@@ -10,14 +10,9 @@ import io.txpipe.tx3.intellij.psi.Tx3File
 import io.txpipe.tx3.intellij.psi.impl.*
 import javax.swing.JPanel
 
-class Tx3InlayHintsProvider : InlayHintsProvider<Tx3InlayHintsProvider.Settings> {
+class Tx3InlayHintsProvider : InlayHintsProvider<NoSettings> {
 
-    data class Settings(
-        var showParamTypes: Boolean = true,
-        var showRecordFieldTypes: Boolean = true,
-    )
-
-    override val key: SettingsKey<Settings> = SettingsKey("tx3.inlay.hints")
+    override val key: SettingsKey<NoSettings> = SettingsKey("tx3.inlay.hints")
     override val name: String = "Tx3 Inlay Hints"
     override val previewText: String = """
         party Sender;
@@ -28,24 +23,19 @@ class Tx3InlayHintsProvider : InlayHintsProvider<Tx3InlayHintsProvider.Settings>
         }
     """.trimIndent()
 
-    override fun createSettings(): Settings = Settings()
+    override fun createSettings(): NoSettings = NoSettings()
 
     override fun getCollectorFor(
         file: PsiFile,
         editor: Editor,
-        settings: Settings,
+        settings: NoSettings,
         sink: InlayHintsSink
     ): InlayHintsCollector? {
         if (file !is Tx3File) return null
-        val safeSettings = try {
-            settings as? Settings ?: Settings()
-        } catch (_: ClassCastException) {
-            Settings()
-        }
-        return Tx3InlayHintsCollector(editor, safeSettings)
+        return Tx3InlayHintsCollector(editor)
     }
 
-    override fun createConfigurable(settings: Settings): ImmediateConfigurable = object : ImmediateConfigurable {
+    override fun createConfigurable(settings: NoSettings): ImmediateConfigurable = object : ImmediateConfigurable {
         override fun createComponent(listener: ChangeListener) = JPanel()
     }
 }
@@ -53,18 +43,14 @@ class Tx3InlayHintsProvider : InlayHintsProvider<Tx3InlayHintsProvider.Settings>
 @Suppress("UnstableApiUsage")
 private class Tx3InlayHintsCollector(
     editor: Editor,
-    private val settings: Tx3InlayHintsProvider.Settings,
 ) : InlayHintsCollector {
 
     private val factory = PresentationFactory(editor)
 
     override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
-        when {
-            settings.showParamTypes && element is Tx3TxParamImpl ->
-                addTypeHint(element, element.paramType()?.typeName(), sink)
-
-            settings.showRecordFieldTypes && element is Tx3RecordFieldImpl ->
-                addTypeHint(element, element.fieldType()?.typeName(), sink)
+        when (element) {
+            is Tx3TxParamImpl    -> addTypeHint(element, element.paramType()?.typeName(), sink)
+            is Tx3RecordFieldImpl -> addTypeHint(element, element.fieldType()?.typeName(), sink)
         }
         return true
     }
