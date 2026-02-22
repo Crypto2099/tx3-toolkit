@@ -37,7 +37,12 @@ class Tx3InlayHintsProvider : InlayHintsProvider<Tx3InlayHintsProvider.Settings>
         sink: InlayHintsSink
     ): InlayHintsCollector? {
         if (file !is Tx3File) return null
-        return Tx3InlayHintsCollector(editor, settings)
+        val safeSettings = try {
+            settings as? Settings ?: Settings()
+        } catch (_: ClassCastException) {
+            Settings()
+        }
+        return Tx3InlayHintsCollector(editor, safeSettings)
     }
 
     override fun createConfigurable(settings: Settings): ImmediateConfigurable = object : ImmediateConfigurable {

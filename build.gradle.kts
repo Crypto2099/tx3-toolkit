@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.txpipe"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -72,18 +72,33 @@ tasks {
         sinceBuild.set("233")
         untilBuild.set("253.*")
         changeNotes.set("""
+            <h3>1.0.2</h3>
+            <ul>
+              <li>Fixed ClassCastException crash on startup caused by stale inlay hints settings across classloader instances</li>
+            </ul>
             <h3>1.0.1</h3>
             <ul>
+              <li>Fixed plugin ID rejected by JetBrains Marketplace validator (renamed to io.txpipe.tx3)</li>
+              <li>Fixed env block fields incorrectly flagged as errors due to double-brace consumption in parser</li>
+              <li>Fixed builtin types (Int, Bytes, Bool, etc.) losing syntax highlighting inside type and record declarations</li>
+              <li>Updated plugin icon to meet JetBrains branding guidelines</li>
+            </ul>
+            <h3>1.0.0</h3>
+            <ul>
               <li>Initial release</li>
-              <li>Syntax highlighting with semantic color tokens</li>
-              <li>Smart code completion for keywords, types, and user-defined symbols</li>
-              <li>Type-aware inlay hints on inputs/outputs</li>
-              <li>Code folding for tx, record, party, policy blocks</li>
-              <li>Structure view &amp; file outliner</li>
-              <li>Live templates for common patterns</li>
-              <li>Error annotations and quick fixes for missing trailing commas</li>
-              <li>Built-in Tx3 color scheme</li>
+              <li>Syntax highlighting with semantic color tokens for all Tx3 constructs</li>
+              <li>Smart code completion for keywords, block fields, types, and user-defined symbols</li>
+              <li>Type-aware inlay hints showing parameter and record field types inline</li>
+              <li>Code folding for tx, type, record, party, and policy blocks</li>
+              <li>Structure view and file outliner for quick navigation</li>
+              <li>Live templates for common Tx3 patterns</li>
+              <li>Error annotations with quick-fixes for missing trailing commas</li>
+              <li>Built-in Tx3 color scheme (dark theme)</li>
               <li>Auto-closing braces, brackets, and parentheses</li>
+              <li>Formatter with correct 4-space indentation and block-aware enter handling</li>
+              <li>New File action with Blank, Simple Transfer, and Vesting Contract templates</li>
+              <li>Support for all Tx3 block types including input*, mint, burn, locals, collateral, and more</li>
+              <li>Support for variant types, generic types, asset literals, and UTXO reference literals</li>
             </ul>
         """.trimIndent())
     }
