@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.txpipe"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -72,7 +72,7 @@ tasks {
         sinceBuild.set("233")
         untilBuild.set("253.*")
         changeNotes.set("""
-            <h3>1.0.0</h3>
+            <h3>1.0.1</h3>
             <ul>
               <li>Initial release</li>
               <li>Syntax highlighting with semantic color tokens</li>

@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1] - 2026-02-22
+- Fixed some typos in README
+- Remove `intellij` from plugin ID to comply w/ Jetbrains Marketplace guidelines
+- Update plugin icon
+
 ## [1.0.0] - 2026-02-22
 
 ### Added
