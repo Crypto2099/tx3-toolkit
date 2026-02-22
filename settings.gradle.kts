@@ -1,1 +1,1 @@
-rootProject.name = "tx3-intellij-plugin"
+rootProject.name = "tx3-toolkit"
