@@ -1,7 +1,7 @@
 <idea-plugin>
-    <id>io.txpipe.tx3.intellij</id>
+    <id>io.txpipe.tx3</id>
     <name>Tx3 Toolkit</name>
-    <vendor url="https://github.com/crypto2099">Adam K. Dean</vendor>
+    <vendor url="https://github.com/adamkdean">Adam K. Dean</vendor>
     <description><![CDATA[
         <b>Tx3 Toolkit — JetBrains IDE support for the Tx3 language by TxPipe.</b>
         <br/><br/>
