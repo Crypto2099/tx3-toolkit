@@ -58,7 +58,7 @@ jobs:
       - name: Install Tx3 toolchain
         if: steps.changed.outputs.skip == 'false'
         run: |
-          curl -sSf https://raw.githubusercontent.com/tx3-lang/tx3/main/tx3up/install.sh | sh
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/tx3-lang/up/releases/latest/download/tx3up-installer.sh | sh
           echo "$HOME/.tx3/bin" >> $GITHUB_PATH
 
       - name: Run trix check
