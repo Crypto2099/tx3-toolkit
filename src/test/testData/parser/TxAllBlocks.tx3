@@ -1,0 +1,20 @@
+party Sender;
+party Receiver;
+policy MyPolicy = 0xabcdef01;
+
+tx complex(qty: Int) {
+    input source {
+        from: Sender,
+        min_amount: Ada(qty),
+    }
+    output {
+        to: Receiver,
+        amount: Ada(qty),
+    }
+    mint {
+        amount: Ada(100),
+    }
+    burn {
+        amount: Ada(50),
+    }
+}

@@ -9,7 +9,7 @@ import com.intellij.psi.TokenType;
 
 %class Tx3FlexLexer
 %implements FlexLexer
-%8bit
+%unicode
 %function advance
 %type IElementType
 %eof{ return;
@@ -128,6 +128,8 @@ BLOCK_COMMENT   = "/*"([^*]|\*[^/])*"*/"
 ">"                 { return Tx3TokenTypes.OP_GT; }
 "!"                 { return Tx3TokenTypes.OP_NOT; }
 "="                 { return Tx3TokenTypes.OP_ASSIGN; }
+"?"                 { return Tx3TokenTypes.OP_QUESTION; }
+"|"                 { return Tx3TokenTypes.OP_PIPE; }
 
 // ── Punctuation ──────────────────────────────────────────────────────────────
 "{"                 { return Tx3TokenTypes.LBRACE; }

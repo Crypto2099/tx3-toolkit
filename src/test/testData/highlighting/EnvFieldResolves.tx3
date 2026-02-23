@@ -1,0 +1,12 @@
+party Sender;
+
+env {
+    treasury: Address,
+}
+
+tx test() {
+    output {
+        to: treasury,
+        amount: Ada(100),
+    }
+}

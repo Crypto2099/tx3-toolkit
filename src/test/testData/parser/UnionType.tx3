@@ -1,0 +1,1 @@
+type Credential = Bytes | Int;

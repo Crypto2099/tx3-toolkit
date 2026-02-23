@@ -1,0 +1,13 @@
+party Sender;
+party Receiver;
+
+tx transfer(qty: Int) <fold text='tx transfer(qty) { … }'>{
+    input source <fold text='input source { … }'>{
+        from: Sender,
+        min_amount: Ada(qty),
+    }</fold>
+    output <fold text='output  { … }'>{
+        to: Receiver,
+        amount: Ada(qty),
+    }</fold>
+}</fold>

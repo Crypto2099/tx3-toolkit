@@ -1,0 +1,17 @@
+type State <fold text='type State { 2 fields }'>{
+    owner: Address,
+    value: Int,
+}</fold>
+
+party Sender;
+
+tx test() <fold text='tx test() { … }'>{
+    output <fold text='output  { … }'>{
+        to: Sender,
+        amount: Ada(100),
+        datum: State <fold text='State { … }'>{
+            owner: Sender,
+            value: 42,
+        }</fold>,
+    }</fold>
+}</fold>

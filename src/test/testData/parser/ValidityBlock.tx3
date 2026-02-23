@@ -1,0 +1,6 @@
+tx test {
+    validity {
+        since_slot: 100,
+        until_slot: 200,
+    }
+}

@@ -1,0 +1,6 @@
+tx test(flag: Bool) {
+    let x = flag ? 1 : 0;
+    output result {
+        amount: Ada(x),
+    }
+}

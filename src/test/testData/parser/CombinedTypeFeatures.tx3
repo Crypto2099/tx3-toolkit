@@ -1,0 +1,7 @@
+type AssetName = Bytes;
+type Credential = Bytes | Int;
+type Addr = { hash: Bytes, staking: Bytes };
+type Option {
+    Some(Int),
+    None,
+}

@@ -1,0 +1,4 @@
+record State {
+    owner: Address,
+    balance: Int,
+}

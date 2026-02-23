@@ -1,0 +1,21 @@
+party Sender;
+
+type State {
+    owner: Address,
+    value: Int,
+}
+
+tx test() {
+    input source {
+        from: Sender,
+        datum_is: State,
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+        datum: State {
+            ...source.datum,
+            value: 200,
+        },
+    }
+}

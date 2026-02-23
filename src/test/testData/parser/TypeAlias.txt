@@ -1,0 +1,8 @@
+Tx3 File(0,23)
+  ASTWrapperPsiElement(TYPE_ALIAS_DECL)(0,23)
+    PsiElement(type)('type')(0,4)
+    PsiElement(IDENTIFIER)('AssetName')(5,14)
+    PsiElement(=)('=')(15,16)
+    Tx3TypeRefImpl(TYPE_REF)(17,22)
+      PsiElement(Bytes)('Bytes')(17,22)
+    PsiElement(;)(';')(22,23)

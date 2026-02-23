@@ -1,0 +1,7 @@
+Tx3 File(0,37)
+  Tx3PolicyDecl(MyPolicy)(0,37)
+    PsiElement(policy)('policy')(0,6)
+    PsiElement(IDENTIFIER)('MyPolicy')(7,15)
+    PsiElement(=)('=')(16,17)
+    PsiElement(HEX_LITERAL)('0xabcdef0123456789')(18,36)
+    PsiElement(;)(';')(36,37)

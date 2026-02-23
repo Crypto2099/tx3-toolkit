@@ -1,0 +1,9 @@
+party Sender;
+
+tx test {
+    let items = [1, 2, 3];
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}

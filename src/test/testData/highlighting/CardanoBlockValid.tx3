@@ -1,0 +1,16 @@
+party Sender;
+
+tx test() {
+    input source {
+        from: Sender,
+        min_amount: Ada(100),
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+    }
+    cardano::plutus_witness {
+        script: 0xabcdef01,
+        hash: 0x01234567,
+    }
+}

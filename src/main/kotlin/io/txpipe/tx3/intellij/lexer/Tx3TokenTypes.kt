@@ -91,6 +91,8 @@ object Tx3TokenTypes {
     @JvmField val OP_ASSIGN       = Tx3TokenType("=")
     @JvmField val OP_DOUBLE_COLON = Tx3TokenType("::")
     @JvmField val OP_SPREAD       = Tx3TokenType("...")
+    @JvmField val OP_QUESTION     = Tx3TokenType("?")
+    @JvmField val OP_PIPE         = Tx3TokenType("|")
 
     // ── Punctuation ───────────────────────────────────────────────────────────
     @JvmField val LBRACE    = Tx3TokenType("{")
@@ -144,7 +146,8 @@ object Tx3TokenTypes {
     val OPERATORS = setOf(
         OP_PLUS, OP_MINUS, OP_MUL, OP_DIV, OP_EQ, OP_NEQ,
         OP_LT, OP_LE, OP_GT, OP_GE, OP_AND, OP_OR, OP_NOT,
-        OP_ASSIGN, OP_DOUBLE_COLON, OP_SPREAD
+        OP_ASSIGN, OP_DOUBLE_COLON, OP_SPREAD,
+        OP_QUESTION, OP_PIPE
     )
 
     val LITERALS = setOf(

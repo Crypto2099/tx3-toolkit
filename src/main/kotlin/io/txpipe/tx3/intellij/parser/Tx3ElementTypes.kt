@@ -115,6 +115,28 @@ object Tx3ElementTypes {
     @JvmField val MAP_TYPE     = Tx3ElementType("MAP_TYPE")
     @JvmField val GENERIC_TYPE = Tx3ElementType("GENERIC_TYPE")
 
+    // ── Type Aliases & Unions ──────────────────────────────────────────────────
+    /** `type AssetName = Bytes;` */
+    @JvmField val TYPE_ALIAS_DECL = Tx3ElementType("TYPE_ALIAS_DECL")
+
+    /** `VerKey | Script` in a type alias context */
+    @JvmField val UNION_TYPE = Tx3ElementType("UNION_TYPE")
+
+    /** `{ hash: Bytes, staking: Bytes }` as a type in alias context */
+    @JvmField val ANONYMOUS_RECORD_TYPE = Tx3ElementType("ANONYMOUS_RECORD_TYPE")
+
+    /** `Some(Int)` — tuple parameters in a variant case */
+    @JvmField val VARIANT_TUPLE_PARAMS = Tx3ElementType("VARIANT_TUPLE_PARAMS")
+
+    /** `Int[]` — array type suffix */
+    @JvmField val ARRAY_TYPE = Tx3ElementType("ARRAY_TYPE")
+
+    /** `items[0]` — index expression */
+    @JvmField val INDEX_EXPR = Tx3ElementType("INDEX_EXPR")
+
+    /** `cond ? a : b` — ternary expression */
+    @JvmField val TERNARY_EXPR = Tx3ElementType("TERNARY_EXPR")
+
     // ── Miscellaneous ─────────────────────────────────────────────────────────
     @JvmField val PARAM_LIST = Tx3ElementType("PARAM_LIST")
     @JvmField val ARG_LIST   = Tx3ElementType("ARG_LIST")

@@ -1,0 +1,8 @@
+party Sender;
+
+tx test {
+    input* sources {
+        from: Sender,
+        min_amount: Ada(100),
+    }
+}

@@ -1,0 +1,11 @@
+party Sender;
+
+tx test(a: Bool, b: Bool) {
+    let both = a && b;
+    let either = a || b;
+    let complex = (a && b) || (!a && !b);
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}

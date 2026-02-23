@@ -1,0 +1,4 @@
+record State <fold text='record State { 2 fields }'>{
+    owner: Address,
+    balance: Int,
+}</fold>

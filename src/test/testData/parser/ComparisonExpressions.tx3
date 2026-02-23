@@ -1,0 +1,12 @@
+party Sender;
+
+tx test(a: Int, b: Int) {
+    let lt = a < b;
+    let le = a <= b;
+    let gt = a > b;
+    let ge = a >= b;
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}

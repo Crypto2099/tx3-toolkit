@@ -1,0 +1,5 @@
+tx test {
+    metadata {
+        1: "hello",
+    }
+}

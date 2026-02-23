@@ -1,0 +1,9 @@
+tx test {
+    locals {
+        fee: fees,
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+    }
+}

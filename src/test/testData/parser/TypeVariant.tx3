@@ -1,0 +1,9 @@
+type Action {
+    Increment {
+        value: Int,
+    },
+    Decrement {
+        value: Int,
+    },
+    Reset,
+}

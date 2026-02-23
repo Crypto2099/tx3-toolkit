@@ -1,0 +1,11 @@
+party Sender;
+
+tx test() <fold text='tx test() { … }'>{
+    locals <fold text='locals { … }'>{
+        fee: fees,
+    }</fold>
+    output <fold text='output  { … }'>{
+        to: Sender,
+        amount: Ada(100),
+    }</fold>
+}</fold>

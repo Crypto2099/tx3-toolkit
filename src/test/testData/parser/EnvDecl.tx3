@@ -1,0 +1,4 @@
+env {
+    treasury: Address,
+    min_deposit: Int,
+}

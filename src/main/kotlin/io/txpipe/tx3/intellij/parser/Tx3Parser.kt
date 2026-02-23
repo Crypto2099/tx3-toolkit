@@ -133,11 +133,21 @@ class Tx3Parser : PsiParser {
         if (!expect(b, T.IDENTIFIER, "Expected type name")) {
             mark.done(if (isLegacyRecord) E.RECORD_DECL else E.TYPE_DECL); return
         }
+
+        // Type alias: `type Name = TypeRef;` or `type Name = A | B;` or `type Name = { ... }`
+        if (!isLegacyRecord && b.tokenType == T.OP_ASSIGN) {
+            b.advanceLexer() // consume '='
+            parseTypeRefOrUnion(b)
+            expect(b, T.SEMICOLON, "Expected ';'")
+            mark.done(E.TYPE_ALIAS_DECL)
+            return
+        }
+
         if (!expect(b, T.LBRACE, "Expected '{'")) {
             mark.done(if (isLegacyRecord) E.RECORD_DECL else E.TYPE_DECL); return
         }
 
-        // Discriminate: if first non-whitespace is IDENTIFIER followed by '{' or ',' or '}' → variant
+        // Discriminate: if first non-whitespace is IDENTIFIER followed by '{' or ',' or '}' or '(' → variant
         val isVariant = !isLegacyRecord && looksLikeVariantBody(b)
 
         if (isVariant) {
@@ -161,7 +171,25 @@ class Tx3Parser : PsiParser {
     private fun looksLikeVariantBody(b: PsiBuilder): Boolean {
         if (b.tokenType != T.IDENTIFIER) return false
         val next = b.lookAhead(1)
-        return next == T.LBRACE || next == T.COMMA || next == T.RBRACE
+        return next == T.LBRACE || next == T.COMMA || next == T.RBRACE || next == T.LPAREN
+    }
+
+    /**
+     * Parses a type reference that may be a union: `TypeA | TypeB | TypeC`.
+     * Used only in type alias context (after `=`).
+     */
+    private fun parseTypeRefOrUnion(b: PsiBuilder) {
+        val mark = b.mark()
+        parseTypeRef(b)
+        if (b.tokenType == T.OP_PIPE) {
+            while (b.tokenType == T.OP_PIPE) {
+                b.advanceLexer() // consume '|'
+                parseTypeRef(b)
+            }
+            mark.done(E.UNION_TYPE)
+        } else {
+            mark.drop()
+        }
     }
 
     private fun parseRecordField(b: PsiBuilder) {
@@ -178,6 +206,14 @@ class Tx3Parser : PsiParser {
         if (!expectIdentifier(b, "Expected variant case name")) { mark.done(E.VARIANT_CASE); return }
         when (b.tokenType) {
             T.LBRACE -> parseRecordFieldBlock(b)
+            T.LPAREN -> {
+                val tupleM = b.mark()
+                b.advanceLexer() // consume '('
+                parseTypeRef(b)
+                while (b.tokenType == T.COMMA) { b.advanceLexer(); parseTypeRef(b) }
+                expect(b, T.RPAREN, "Expected ')'")
+                tupleM.done(E.VARIANT_TUPLE_PARAMS)
+            }
             else -> { /* unit case — no body */ }
         }
         if (b.tokenType == T.COMMA) b.advanceLexer()
@@ -443,7 +479,21 @@ class Tx3Parser : PsiParser {
 
     // ── Expressions ───────────────────────────────────────────────────────────
 
-    private fun parseExpr(b: PsiBuilder) = parseLogicalExpr(b)
+    private fun parseExpr(b: PsiBuilder) = parseTernaryExpr(b)
+
+    private fun parseTernaryExpr(b: PsiBuilder) {
+        val mark = b.mark()
+        parseLogicalExpr(b)
+        if (b.tokenType == T.OP_QUESTION) {
+            b.advanceLexer() // consume '?'
+            parseExpr(b)     // true branch (right-associative)
+            expect(b, T.COLON, "Expected ':'")
+            parseExpr(b)     // false branch
+            mark.done(E.TERNARY_EXPR)
+        } else {
+            mark.drop()
+        }
+    }
 
     // logical: &&, ||
     private fun parseLogicalExpr(b: PsiBuilder) {
@@ -518,14 +568,22 @@ class Tx3Parser : PsiParser {
         }
     }
 
-    // Postfix handles field access: expr.field
+    // Postfix handles field access (expr.field) and index (expr[i])
     private fun parsePostfixExpr(b: PsiBuilder) {
         parsePrimaryExpr(b)
-        while (b.tokenType == T.DOT) {
-            val mark = b.mark()
-            b.advanceLexer() // consume '.'
-            expect(b, T.IDENTIFIER, "Expected field name after '.'")
-            mark.done(E.FIELD_ACCESS_EXPR)
+        while (b.tokenType == T.DOT || b.tokenType == T.LBRACKET) {
+            if (b.tokenType == T.DOT) {
+                val mark = b.mark()
+                b.advanceLexer() // consume '.'
+                expect(b, T.IDENTIFIER, "Expected field name after '.'")
+                mark.done(E.FIELD_ACCESS_EXPR)
+            } else {
+                val mark = b.mark()
+                b.advanceLexer() // consume '['
+                parseExpr(b)
+                expect(b, T.RBRACKET, "Expected ']'")
+                mark.done(E.INDEX_EXPR)
+            }
         }
     }
 
@@ -699,6 +757,17 @@ class Tx3Parser : PsiParser {
     }
 
     private fun parseTypeRef(b: PsiBuilder) {
+        parseBaseTypeRef(b)
+        // Postfix [] for array types
+        while (b.tokenType == T.LBRACKET && b.lookAhead(1) == T.RBRACKET) {
+            val arrayMark = b.mark()
+            b.advanceLexer() // consume '['
+            b.advanceLexer() // consume ']'
+            arrayMark.done(E.ARRAY_TYPE)
+        }
+    }
+
+    private fun parseBaseTypeRef(b: PsiBuilder) {
         val mark = b.mark()
         when (b.tokenType) {
             // [Type] — list type
@@ -729,6 +798,17 @@ class Tx3Parser : PsiParser {
                     expect(b, T.OP_GT, "Expected '>'")
                 }
                 mark.done(E.MAP_TYPE)
+            }
+            // Anonymous record type: { field: Type, ... }
+            T.LBRACE -> {
+                b.advanceLexer() // consume '{'
+                while (!b.eof() && b.tokenType != T.RBRACE) {
+                    val pos = b.currentOffset
+                    parseRecordField(b)
+                    if (b.currentOffset == pos && b.tokenType != T.RBRACE) b.advanceLexer()
+                }
+                expect(b, T.RBRACE, "Expected '}'")
+                mark.done(E.ANONYMOUS_RECORD_TYPE)
             }
             // Builtin scalar types or user-defined type name
             in builtinTypeTokens, T.IDENTIFIER -> {

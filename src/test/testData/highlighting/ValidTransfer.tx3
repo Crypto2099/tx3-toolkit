@@ -1,0 +1,17 @@
+party Sender;
+party Receiver;
+
+tx transfer(qty: Int,) {
+    input source {
+        from: Sender,
+        min_amount: Ada(qty),
+    }
+    output {
+        to: Receiver,
+        amount: Ada(qty),
+    }
+    output {
+        to: Sender,
+        amount: source - Ada(qty) - fees,
+    }
+}

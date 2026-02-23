@@ -1,0 +1,9 @@
+party Sender;
+
+tx test() {
+    output {
+        to: Sender,
+        amount: Ada(100),
+        datum: <weak_warning descr="Unresolved reference: 'undefined_var'">undefined_var</weak_warning>,
+    }
+}

@@ -1,0 +1,103 @@
+name: Upstream Compatibility Check
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Weekly on Monday at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check-compat:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest upstream release tag
+        id: upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=$(gh api repos/tx3-lang/tx3/releases/latest --jq .tag_name 2>/dev/null || echo "unknown")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Restore cached upstream version
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .upstream-version
+          key: tx3-upstream-version-${{ steps.upstream.outputs.tag }}
+          restore-keys: tx3-upstream-version-
+
+      - name: Check if version changed
+        id: changed
+        run: |
+          CURRENT="${{ steps.upstream.outputs.tag }}"
+          if [ -f .upstream-version ]; then
+            CACHED=$(cat .upstream-version)
+          else
+            CACHED=""
+          fi
+          if [ "$CURRENT" = "$CACHED" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up JDK 17
+        if: steps.changed.outputs.skip == 'false'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+
+      - name: Setup Gradle
+        if: steps.changed.outputs.skip == 'false'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Tx3 toolchain
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          curl -sSf https://raw.githubusercontent.com/tx3-lang/tx3/main/tx3up/install.sh | sh
+          echo "$HOME/.tx3/bin" >> $GITHUB_PATH
+
+      - name: Run trix check
+        if: steps.changed.outputs.skip == 'false'
+        id: trix
+        continue-on-error: true
+        run: |
+          cd src/test/testData/trix-project
+          trix check
+
+      - name: Run Gradle tests
+        if: steps.changed.outputs.skip == 'false'
+        id: gradle
+        continue-on-error: true
+        run: ./gradlew generateLexer test
+
+      - name: Update cached version
+        if: steps.changed.outputs.skip == 'false'
+        run: echo "${{ steps.upstream.outputs.tag }}" > .upstream-version
+
+      - name: Create issue on new release
+        if: steps.changed.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.upstream.outputs.tag }}
+          TRIX_RESULT: ${{ steps.trix.outcome }}
+          GRADLE_RESULT: ${{ steps.gradle.outcome }}
+        run: |
+          BODY="A new Tx3 release has been detected: **${TAG}**
+
+          ## Compatibility Results
+          - \`trix check\`: **${TRIX_RESULT}**
+          - \`./gradlew test\`: **${GRADLE_RESULT}**
+
+          [View upstream release](https://github.com/tx3-lang/tx3/releases/tag/${TAG})
+
+          Please review for any syntax changes that may affect the plugin."
+
+          gh issue create \
+            --title "New Tx3 release: ${TAG}" \
+            --body "$BODY" \
+            --label "upstream-compat"

@@ -1,0 +1,5 @@
+tx test {
+    reference myRef {
+        ref: 0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789#0,
+    }
+}

@@ -1,0 +1,7 @@
+Tx3 File(0,35)
+  Tx3AssetDecl(MyToken)(0,35)
+    PsiElement(asset)('asset')(0,5)
+    PsiElement(IDENTIFIER)('MyToken')(6,13)
+    PsiElement(=)('=')(14,15)
+    PsiElement(ASSET_LITERAL)('0xabcdef01."TOKEN"')(16,34)
+    PsiElement(;)(';')(34,35)

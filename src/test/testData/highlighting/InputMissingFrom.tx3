@@ -1,0 +1,11 @@
+party Sender;
+
+tx test() {
+    <warning descr="Input block must have either 'from' or 'ref' field">input</warning> source {
+        min_amount: Ada(100),
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+    }
+}

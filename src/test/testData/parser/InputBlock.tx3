@@ -1,0 +1,9 @@
+party Sender;
+
+tx test {
+    input source {
+        from: Sender,
+        min_amount: Ada(100),
+        datum: 42,
+    }
+}

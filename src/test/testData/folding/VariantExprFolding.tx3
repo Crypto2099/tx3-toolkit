@@ -1,0 +1,20 @@
+type Action <fold text='type Action { 2 fields }'>{
+    Increment <fold text='Increment { … }'>{
+        value: Int,
+        extra: Int,
+    }</fold>,
+    Reset,
+}</fold>
+
+party Sender;
+
+tx test() <fold text='tx test() { … }'>{
+    output <fold text='output  { … }'>{
+        to: Sender,
+        amount: Ada(100),
+        datum: Action::Increment <fold text='Action::Action { … }'>{
+            value: 1,
+            extra: 2,
+        }</fold>,
+    }</fold>
+}</fold>

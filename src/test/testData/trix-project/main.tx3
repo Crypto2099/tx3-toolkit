@@ -1,0 +1,225 @@
+// Comprehensive Tx3 fixture file exercising all syntax constructs.
+// Used by `trix check` to validate upstream Tx3 compatibility.
+
+// ── Parties ──────────────────────────────────────────────────────────────────
+party Sender;
+party Receiver;
+
+// ── Policies ─────────────────────────────────────────────────────────────────
+policy TokenPolicy = 0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef01;
+
+// ── Record (legacy keyword) ──────────────────────────────────────────────────
+record LegacyState {
+    owner: Address,
+    balance: Int,
+}
+
+// ── Type — record style ─────────────────────────────────────────────────────
+type TransferInfo {
+    from: Address,
+    to: Address,
+    amount: Int,
+}
+
+// ── Type — variant style ────────────────────────────────────────────────────
+type Action {
+    Increment {
+        value: Int,
+    },
+    Decrement {
+        value: Int,
+    },
+    Reset,
+}
+
+// ── Type with generic fields ────────────────────────────────────────────────
+type Container {
+    items: List<Int>,
+    lookup: Map<Bytes, Int>,
+}
+
+// ── Env block ────────────────────────────────────────────────────────────────
+env {
+    treasury: Address,
+    min_deposit: Int,
+}
+
+// ── Asset declaration ────────────────────────────────────────────────────────
+asset MyToken = 0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef01."TOKEN";
+
+// ── Simple tx ────────────────────────────────────────────────────────────────
+tx simple_transfer(qty: Int) {
+    input source {
+        from: Sender,
+        min_amount: Ada(qty),
+    }
+    output {
+        to: Receiver,
+        amount: Ada(qty),
+    }
+    output {
+        to: Sender,
+        amount: source - Ada(qty) - fees,
+    }
+}
+
+// ── Tx with all block types ──────────────────────────────────────────────────
+tx complex_tx(qty: Int, deadline: Int) {
+    input source {
+        from: Sender,
+        min_amount: Ada(qty),
+    }
+    output {
+        to: Receiver,
+        amount: Ada(qty),
+        datum: TransferInfo {
+            from: Sender,
+            to: Receiver,
+            amount: qty,
+        },
+    }
+    validity {
+        since_slot: 100,
+        until_slot: deadline,
+    }
+    signers {
+        Sender,
+    }
+}
+
+// ── Tx with datum_is ─────────────────────────────────────────────────────────
+tx with_datum_is() {
+    input source {
+        from: Sender,
+        datum_is: TransferInfo,
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+    }
+}
+
+// ── Tx with input* (multi-input coin selection) ─────────────────────────────
+tx multi_input() {
+    input* sources {
+        from: Sender,
+        min_amount: Ada(1000),
+    }
+    output {
+        to: Receiver,
+        amount: Ada(1000),
+    }
+}
+
+// ── Tx with expressions ──────────────────────────────────────────────────────
+tx expression_test(a: Int, b: Int) {
+    let sum = a + b;
+    let diff = a - b;
+    let prod = a * b;
+    let quot = a / b;
+    let eq = a == b;
+    let neq = a != b;
+    let lt = a < b;
+    let le = a <= b;
+    let gt = a > b;
+    let ge = a >= b;
+    output {
+        to: Sender,
+        amount: Ada(sum + diff + prod),
+    }
+}
+
+// ── Tx with boolean expressions ─────────────────────────────────────────────
+tx bool_test(x: Bool, y: Bool) {
+    let both = x && y;
+    let either = x || y;
+    let negated = !x;
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}
+
+// ── Tx with variant construction ────────────────────────────────────────────
+tx variant_test() {
+    output {
+        to: Sender,
+        amount: Ada(100),
+        datum: Action::Increment {
+            value: 42,
+        },
+    }
+}
+
+// ── Tx with spread expression ───────────────────────────────────────────────
+tx spread_test() {
+    input source {
+        from: Sender,
+        datum_is: TransferInfo,
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+        datum: TransferInfo {
+            ...source.datum,
+            amount: 200,
+        },
+    }
+}
+
+// ── Tx with unit literal ────────────────────────────────────────────────────
+tx unit_test() {
+    let x = ();
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}
+
+// ── Tx with record literal ──────────────────────────────────────────────────
+tx record_literal_test() {
+    output {
+        to: Sender,
+        amount: Ada(100),
+        datum: TransferInfo {
+            from: Sender,
+            to: Receiver,
+            amount: 100,
+        },
+    }
+}
+
+// ── Tx with list literal ────────────────────────────────────────────────────
+tx list_test() {
+    let items = [1, 2, 3];
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}
+
+// ── Tx with generic param types ─────────────────────────────────────────────
+tx generic_params(items: List<Int>, lookup: Map<Bytes, Int>) {
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}
+
+// ── Tx with bracket list type ───────────────────────────────────────────────
+tx bracket_list(items: [Int]) {
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}
+
+// ── Tx with unary expressions ───────────────────────────────────────────────
+tx unary_test(flag: Bool) {
+    let negated = !flag;
+    let negative = -1;
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}

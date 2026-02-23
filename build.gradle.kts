@@ -9,10 +9,14 @@ plugins {
 }
 
 group = "io.txpipe"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    testImplementation("junit:junit:4.13.2")
 }
 
 intellij {
@@ -46,6 +50,10 @@ sourceSets {
         kotlin.srcDirs("src/main/kotlin")
         resources.srcDirs("src/main/resources")
     }
+    test {
+        kotlin.srcDirs("src/test/kotlin")
+        resources.srcDirs("src/test/testData")
+    }
 }
 
 java {
@@ -71,14 +79,36 @@ tasks {
         dependsOn(generateLexer)
         kotlinOptions.jvmTarget = "17"
     }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "17"
+    }
     compileJava {
         dependsOn(generateLexer)
+    }
+
+    test {
+        systemProperty("idea.test.src.dir", "${project.projectDir}/src/test/testData")
     }
 
     patchPluginXml {
         sinceBuild.set("233")
         untilBuild.set("253.*")
         changeNotes.set("""
+            <h3>1.0.4</h3>
+            <ul>
+              <li>Added parser support for type aliases (<code>type AssetName = Bytes;</code>)</li>
+              <li>Added parser support for union types (<code>type Credential = VerKey | Script;</code>)</li>
+              <li>Added parser support for anonymous record types (<code>type Addr = { hash: Bytes, staking: Bytes };</code>)</li>
+              <li>Added parser support for variant tuple wrapping (<code>Some(Int)</code>)</li>
+              <li>Added parser support for array type suffix (<code>Int[]</code>)</li>
+              <li>Added parser support for list indexing (<code>items[0]</code>)</li>
+              <li>Added parser support for ternary expressions (<code>flag ? a : b</code>)</li>
+              <li>Fixed lexer crash (InvalidStateException) during incremental re-lexing by switching from %8bit to %unicode</li>
+              <li>Added GitHub Actions CI pipeline with build, test, and trix-check jobs</li>
+              <li>Added release and upstream compatibility check workflows</li>
+              <li>Added Gradle wrapper for reproducible builds</li>
+              <li>Added parser and lexer tests covering all new language constructs</li>
+            </ul>
             <h3>1.0.3</h3>
             <ul>
               <li>Fixed ClassCastException crash when disabling/enabling the plugin in a live session by switching to NoSettings, eliminating classloader serialization entirely</li>

@@ -1,0 +1,9 @@
+party Sender;
+
+tx test(metadata: Int, mint: Int) {
+    let collateral = metadata + mint;
+    output {
+        to: Sender,
+        amount: Ada(collateral),
+    }
+}

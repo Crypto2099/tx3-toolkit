@@ -1,0 +1,4 @@
+type State {
+    owner: Address,
+    <error descr="Missing trailing comma (required by Tx3)">value: Int</error>
+}

@@ -1,0 +1,8 @@
+party Sender;
+
+tx test(items: List<Int>, lookup: Map<Bytes, Int>) {
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}

@@ -1,0 +1,7 @@
+party Sender;
+
+tx test {
+    signers {
+        Sender,
+    }
+}

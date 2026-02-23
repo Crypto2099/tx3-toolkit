@@ -1,0 +1,9 @@
+party Receiver;
+
+tx test {
+    output change {
+        to: Receiver,
+        amount: Ada(100),
+        datum: 42,
+    }
+}

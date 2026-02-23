@@ -1,0 +1,6 @@
+tx test(items: Int[]) {
+    let x = items[0];
+    output result {
+        amount: Ada(x),
+    }
+}

@@ -1,0 +1,6 @@
+tx test(a: Bool, b: Bool) {
+    let x = a ? b ? 1 : 2 : 3;
+    output result {
+        amount: Ada(x),
+    }
+}

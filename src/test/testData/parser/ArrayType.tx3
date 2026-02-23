@@ -1,0 +1,5 @@
+tx test(items: Int[]) {
+    output result {
+        amount: Ada(1),
+    }
+}

@@ -1,0 +1,19 @@
+party Owner;
+party Beneficiary;
+
+type VestingDatum {
+    beneficiary: Address,
+    deadline: Int,
+}
+
+tx vest(amount: Int, deadline: Int) {
+    input source {
+        from: Owner,
+        min_amount: Ada(amount),
+    }
+    output {
+        to: Owner,
+        amount: Ada(amount),
+        datum: VestingDatum { beneficiary: Beneficiary, deadline: deadline, },
+    }
+}

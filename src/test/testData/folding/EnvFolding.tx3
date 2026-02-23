@@ -1,0 +1,4 @@
+env <fold text='env { 2 fields }'>{
+    treasury: Address,
+    min_deposit: Int,
+}</fold>

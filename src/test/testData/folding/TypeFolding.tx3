@@ -1,0 +1,5 @@
+type Transfer <fold text='type Transfer { 3 fields }'>{
+    from: Address,
+    to: Address,
+    amount: Int,
+}</fold>

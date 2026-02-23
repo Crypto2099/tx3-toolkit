@@ -1,0 +1,4 @@
+[package]
+name = "tx3-plugin-fixtures"
+version = "0.1.0"
+edition = "1"

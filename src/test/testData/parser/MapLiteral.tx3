@@ -1,0 +1,8 @@
+party Sender;
+
+tx test {
+    metadata {
+        1: "key1",
+        2: "key2",
+    }
+}

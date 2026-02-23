@@ -1,0 +1,14 @@
+type State {
+    owner: Address,
+    value: Int,
+}
+
+party Sender;
+
+tx test {
+    output {
+        to: Sender,
+        amount: Ada(100),
+        datum: State { owner: Sender, value: 42, },
+    }
+}

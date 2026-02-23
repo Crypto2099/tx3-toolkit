@@ -1,0 +1,10 @@
+party Sender;
+
+tx test(flag: Bool) {
+    let negated = !flag;
+    let minus_one = -1;
+    output {
+        to: Sender,
+        amount: Ada(1),
+    }
+}

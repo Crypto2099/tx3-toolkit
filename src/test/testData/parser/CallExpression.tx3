@@ -1,0 +1,8 @@
+party Sender;
+
+tx test(qty: Int) {
+    output {
+        to: Sender,
+        amount: Ada(qty),
+    }
+}

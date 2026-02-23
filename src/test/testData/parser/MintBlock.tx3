@@ -1,0 +1,6 @@
+tx test {
+    mint {
+        amount: Ada(100),
+        redeemer: 0,
+    }
+}

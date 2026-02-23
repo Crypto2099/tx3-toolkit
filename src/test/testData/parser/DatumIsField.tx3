@@ -1,0 +1,17 @@
+party Sender;
+
+type MyDatum {
+    owner: Address,
+    value: Int,
+}
+
+tx test() {
+    input source {
+        from: Sender,
+        datum_is: MyDatum,
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+    }
+}

@@ -1,0 +1,6 @@
+tx test {
+    burn {
+        amount: Ada(100),
+        redeemer: 0,
+    }
+}

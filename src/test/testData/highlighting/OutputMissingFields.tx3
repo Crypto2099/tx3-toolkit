@@ -1,0 +1,6 @@
+party Sender;
+
+tx test() {
+    <warning descr="Output block is missing required field(s): to, amount">output</warning> {
+    }
+}

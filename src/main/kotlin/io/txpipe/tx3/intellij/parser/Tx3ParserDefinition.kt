@@ -82,6 +82,13 @@ class Tx3ParserDefinition : ParserDefinition {
         Tx3ElementTypes.PATH_EXPR         -> ASTWrapperPsiElement(node)
         Tx3ElementTypes.ASSET_EXPR        -> ASTWrapperPsiElement(node)
         Tx3ElementTypes.EXPR              -> ASTWrapperPsiElement(node)
+        Tx3ElementTypes.TYPE_ALIAS_DECL   -> ASTWrapperPsiElement(node)
+        Tx3ElementTypes.UNION_TYPE        -> ASTWrapperPsiElement(node)
+        Tx3ElementTypes.ANONYMOUS_RECORD_TYPE -> ASTWrapperPsiElement(node)
+        Tx3ElementTypes.VARIANT_TUPLE_PARAMS  -> ASTWrapperPsiElement(node)
+        Tx3ElementTypes.ARRAY_TYPE        -> ASTWrapperPsiElement(node)
+        Tx3ElementTypes.INDEX_EXPR        -> ASTWrapperPsiElement(node)
+        Tx3ElementTypes.TERNARY_EXPR      -> ASTWrapperPsiElement(node)
 
         else -> throw IllegalArgumentException("Unknown element: ${node.elementType}")
     }

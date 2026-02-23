@@ -1,0 +1,7 @@
+party Sender;
+
+tx test {
+    collateral {
+        from: Sender,
+    }
+}

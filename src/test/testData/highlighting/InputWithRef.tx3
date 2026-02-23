@@ -1,0 +1,11 @@
+party Sender;
+
+tx test() {
+    input source {
+        ref: 0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789#0,
+    }
+    output {
+        to: Sender,
+        amount: Ada(100),
+    }
+}

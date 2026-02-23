@@ -1,5 +1,52 @@
 # Tx3 Toolkit — Changelog
 
+## [1.0.4] — 2026-02-22
+
+### Added
+
+- **Type aliases** — Parser now supports `type AssetName = Bytes;` syntax for
+  declaring type aliases.
+- **Union types** — Parser now supports `type Credential = VerKey | Script;`
+  syntax for declaring union types in type alias context.
+- **Anonymous record types** — Parser now supports
+  `type Addr = { hash: Bytes, staking: Bytes };` for inline record type
+  definitions in type alias context.
+- **Variant tuple wrapping** — Parser now supports `Some(Int)` syntax for
+  variant cases with positional type parameters.
+- **Array type suffix** — Parser now supports `Int[]` postfix syntax for array
+  types in any type position (parameters, fields, aliases).
+- **List indexing** — Parser now supports `items[0]` index expressions as a
+  postfix operator alongside field access.
+- **Ternary expressions** — Parser now supports `flag ? a : b` conditional
+  expressions with right-associative nesting.
+
+### Fixed
+
+- **Lexer crash on incremental re-lexing** — `InvalidStateException:
+  Unexpected termination offset for lexer FlexAdapter` when pressing Enter or
+  editing documents containing characters outside the 8-bit range. Fixed by
+  switching the JFlex lexer from `%8bit` to `%unicode`.
+
+### Infrastructure
+
+- **GitHub Actions CI pipeline** — Added `ci.yml` workflow that runs on push
+  and PR to `main`: generates the lexer, builds the plugin, runs the full test
+  suite, and uploads test reports on failure.
+- **Trix toolchain validation** — CI pipeline includes a `trix-check` job that
+  installs the Tx3 toolchain and runs `trix check` against the test data
+  project to validate fixtures against the upstream compiler.
+- **Release workflow** — Added `release.yml` for automated plugin releases.
+- **Upstream compatibility check** — Added `upstream-check.yml` workflow for
+  monitoring upstream Tx3 language changes.
+- **Gradle wrapper committed** — Added `gradlew` and `gradlew.bat` for
+  reproducible builds across environments and CI.
+- **Parser test suite** — Added PSI tree snapshot tests covering all 7 new
+  language constructs (type aliases, union types, anonymous records, variant
+  tuples, array types, index expressions, ternary expressions) plus a combined
+  features test and nested ternary test.
+- **Lexer test suite** — Added tests for `?` and `|` token recognition,
+  verified `||` (logical OR) is not broken by the new `|` (pipe) token.
+
 ## [1.0.3] — 2026-02-22
 
 ### Fixed

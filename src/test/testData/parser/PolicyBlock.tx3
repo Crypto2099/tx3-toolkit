@@ -1,0 +1,4 @@
+policy MyPolicy {
+    script: 0xabcdef01,
+    hash: 0x0123456789,
+}

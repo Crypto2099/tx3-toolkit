@@ -1,0 +1,14 @@
+party Sender;
+
+tx test(a: Int, b: Int) {
+    let sum = a + b;
+    let diff = a - b;
+    let prod = a * b;
+    let quot = a / b;
+    let eq = a == b;
+    let neq = a != b;
+    output {
+        to: Sender,
+        amount: Ada(sum),
+    }
+}

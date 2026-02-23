@@ -1,0 +1,5 @@
+type Transfer {
+    from: Address,
+    to: Address,
+    amount: Int,
+}
