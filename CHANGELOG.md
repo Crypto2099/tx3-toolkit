@@ -26,6 +26,29 @@
   Unexpected termination offset for lexer FlexAdapter` when pressing Enter or
   editing documents containing characters outside the 8-bit range. Fixed by
   switching the JFlex lexer from `%8bit` to `%unicode`.
+- **Field access on soft keywords** — Property access expressions like
+  `source.amount` failed when the field name was a soft keyword (`amount`,
+  `from`, `to`, etc.). Fixed `parsePostfixExpr` to accept soft keywords after
+  `.` using `expectIdentifier()`.
+- **False trailing comma errors on tx params** — The trailing comma enforcement
+  was incorrectly applied to transaction parameter declarations (which use
+  comma-separated syntax, not comma-terminated). Removed the check from
+  `Tx3TxParamImpl`.
+
+### Upstream Compatibility Notes
+
+The Tx3 language specification documents several expression operators that are
+not yet implemented in the upstream `trix` compiler. The plugin parser supports
+all spec-documented constructs for forward compatibility, but the following
+operators will produce errors when checked with `trix check`:
+
+- **Arithmetic:** `*`, `/` (only `+` and `-` are implemented upstream)
+- **Comparison:** `==`, `!=`, `<`, `>`, `<=`, `>=`
+- **Logical:** `&&`, `||`, `!`
+- **Ternary:** `? :`
+
+The test fixture (`main.tx3`) has been validated against `trix check` and only
+uses constructs supported by the upstream compiler.
 
 ### Infrastructure
 

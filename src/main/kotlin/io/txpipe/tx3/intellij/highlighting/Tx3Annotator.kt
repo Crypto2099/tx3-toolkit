@@ -38,7 +38,6 @@ class Tx3Annotator : Annotator {
             // e.g., a param named 'metadata' doesn't look like the block keyword.
             is Tx3TxParamImpl    -> {
                 highlightDeclName(element, holder, Tx3SyntaxHighlighter.IDENTIFIER)
-                checkTrailingComma(element, holder)
             }
             is Tx3LetBindingImpl -> {
                 highlightDeclName(element, holder, Tx3SyntaxHighlighter.IDENTIFIER)

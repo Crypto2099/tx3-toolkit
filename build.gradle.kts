@@ -104,6 +104,8 @@ tasks {
               <li>Added parser support for list indexing (<code>items[0]</code>)</li>
               <li>Added parser support for ternary expressions (<code>flag ? a : b</code>)</li>
               <li>Fixed lexer crash (InvalidStateException) during incremental re-lexing by switching from %8bit to %unicode</li>
+              <li>Fixed field access on soft keywords (e.g. <code>source.amount</code>) failing after <code>.</code></li>
+              <li>Fixed false trailing comma errors on transaction parameter declarations</li>
               <li>Added GitHub Actions CI pipeline with build, test, and trix-check jobs</li>
               <li>Added release and upstream compatibility check workflows</li>
               <li>Added Gradle wrapper for reproducible builds</li>

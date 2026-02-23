@@ -575,7 +575,7 @@ class Tx3Parser : PsiParser {
             if (b.tokenType == T.DOT) {
                 val mark = b.mark()
                 b.advanceLexer() // consume '.'
-                expect(b, T.IDENTIFIER, "Expected field name after '.'")
+                expectIdentifier(b, "Expected field name after '.'")
                 mark.done(E.FIELD_ACCESS_EXPR)
             } else {
                 val mark = b.mark()
