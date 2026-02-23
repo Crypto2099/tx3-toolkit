@@ -1,6 +1,5 @@
 package io.txpipe.tx3.intellij.structure
 
-import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder
 import com.intellij.lang.LanguageStructureViewBuilder
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
