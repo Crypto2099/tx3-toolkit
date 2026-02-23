@@ -59,7 +59,9 @@ jobs:
         if: steps.changed.outputs.skip == 'false'
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/tx3-lang/up/releases/latest/download/tx3up-installer.sh | sh
-          echo "$HOME/.tx3/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.cargo/bin:$PATH"
+          tx3up install
+          echo "$HOME/.tx3/default/bin" >> $GITHUB_PATH
 
       - name: Run trix check
         if: steps.changed.outputs.skip == 'false'
