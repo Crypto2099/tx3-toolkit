@@ -1,4 +1,9 @@
-[package]
+[protocol]
 name = "tx3-plugin-fixtures"
-version = "0.1.0"
-edition = "1"
+scope = "io.txpipe"
+version = "1.0.4"
+description = "Tx3 Toolkit plugin test fixtures"
+main = "main.tx3"
+
+[ledger]
+family = "cardano"
