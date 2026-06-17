@@ -58,6 +58,17 @@ class Tx3PartyDeclImpl(node: ASTNode) : Tx3NamedElementBase(node) {
 class Tx3PolicyDeclImpl(node: ASTNode) : Tx3NamedElementBase(node) {
     override fun toString(): String = "Tx3PolicyDecl($name)"
 
+    /** True when declared as `policy Foo { ... }` (block body). */
+    fun hasBlockBody(): Boolean =
+        node.findChildByType(Tx3TokenTypes.LBRACE) != null
+
+    /** True when block-body form is used but the body does not contain a `hash` field. */
+    fun isBlockBodyWithoutHash(): Boolean {
+        if (!hasBlockBody()) return false
+        return node.getChildren(null)
+            .filter { it.elementType == Tx3ElementTypes.BLOCK_FIELD }
+            .none { it.firstChildNode?.text == "hash" }
+    }
 }
 
 class Tx3TypeDeclImpl(node: ASTNode) : Tx3NamedElementBase(node) {
