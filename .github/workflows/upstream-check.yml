@@ -97,7 +97,13 @@ jobs:
 
           [View upstream release](https://github.com/tx3-lang/tx3/releases/tag/${TAG})
 
-          Please review for any syntax changes that may affect the plugin."
+          Please review for any syntax changes that may affect the plugin.
+
+          ## When confirming this version (see CLAUDE.md → 'Tx3 version compatibility')
+          - [ ] \`tx3up install\`; \`trix check\` + \`trix build\` pass on the fixture
+          - [ ] Refresh \`src/test/testData/parser/LangTour.tx3\` (\`tx3_example_get lang_tour\`); \`testLangTour\` passes
+          - [ ] Update the **Tx3 / trix README badges** and the Tx3-compatibility note
+          - [ ] Note the confirmed version in \`CHANGELOG.md\`, then close this issue"
 
           gh issue create \
             --title "New Tx3 release: ${TAG}" \

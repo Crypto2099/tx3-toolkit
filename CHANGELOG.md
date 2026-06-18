@@ -23,6 +23,11 @@
 
 - **Plugin Verifier in CI** — Binary API compatibility is now verified across
   builds 243 → 261 (2024.3, 2025.3, 2026.1) on every change via `verifyPlugin`.
+- **Confirmed Tx3 v0.22.0 compatibility** — Validated against the latest Tx3
+  toolchain (`tx3c 0.22.0`, `trix 0.26.2`): the `trix-project` fixture passes
+  `trix check` and `trix build`, and a new `testLangTour` parser test parses the
+  canonical `lang_tour` example (every language construct) with zero errors.
+  README now carries a Tx3-compatibility badge.
 
 ## [1.0.4] — 2026-02-22
 

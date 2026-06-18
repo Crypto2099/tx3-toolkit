@@ -92,4 +92,11 @@ class Tx3ParserTest : ParsingTestCase("parser", "tx3", Tx3ParserDefinition()) {
     fun testSoftKeywordsAsIdentifiers() = doTest(true)
     fun testTransferProtocol() = doTest(true)
     fun testVestingProtocol() = doTest(true)
+
+    // ── Upstream Alignment ────────────────────────────────────────────────────
+    // The canonical `lang_tour` example from the Tx3 compiler (tx3c) — it touches
+    // every language construct. Parsing it with zero error elements confirms the
+    // plugin stays aligned with the Tx3 language. Update LangTour.tx3 from
+    // `tx3_example_get lang_tour` whenever the confirmed Tx3 version is bumped.
+    fun testLangTour() = doTest(true, true)
 }
