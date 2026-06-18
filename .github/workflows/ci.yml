@@ -12,6 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The 2026.1 IntelliJ Platform SDK is multi-GB; reclaim space the default
+      # runner spends on toolchains we don't use, to avoid "No space left on device".
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          sudo docker image prune --all --force >/dev/null 2>&1 || true
+          df -h /
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -30,15 +39,48 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
-      - name: Verify plugin (binary API compatibility 243 → 261)
-        run: ./gradlew verifyPlugin
-
       - name: Upload test reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
           path: build/reports/tests/test/
+
+  verify-plugin:
+    # Plugin Verifier downloads three full IDEs (243/253/261) — run it in its own
+    # job with its own disk budget, and don't cache the IDEs (they exceed GitHub's
+    # 10 GB cache limit and the cache save runs the runner out of disk).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          sudo docker image prune --all --force >/dev/null 2>&1 || true
+          df -h /
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+
+      - name: Verify plugin (binary API compatibility 243 → 261)
+        run: ./gradlew verifyPlugin
+
+      - name: Upload verifier reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pluginVerifier-reports
+          path: build/reports/pluginVerifier/
 
   trix-check:
     runs-on: ubuntu-latest
