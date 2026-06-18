@@ -1,5 +1,34 @@
 # Tx3 Toolkit — Changelog
 
+## [2.0.0] — 2026-06-15
+
+### Changed (breaking)
+
+- **2026.1+ IDE compatibility** — Compatibility range moved to builds 243 → 261
+  (2024.3 through 2026.1). The previous `untilBuild` of `253.*` gated the plugin
+  out of all 2026.x IDEs entirely.
+- **Minimum supported IDE raised to 2024.3 (build 243)** — Building against the
+  2026.1 SDK emits an `invokespecial` to `InlayHintsProvider.getSettingsLanguage()`,
+  a default interface method absent before 243, so 233/241/242 would fail at
+  runtime. Users on older IDEs should remain on 1.0.4.
+- **Build migrated to IntelliJ Platform Gradle Plugin 2.x** — Replaced the
+  deprecated `org.jetbrains.intellij` (1.x) plugin with
+  `org.jetbrains.intellij.platform` (2.16.0). The plugin now builds against the
+  2026.1 SDK.
+- **Toolchain upgraded to JDK 21, Gradle 9.0, and Kotlin 2.3.20** — Required by
+  the modern IntelliJ Platform; the 2026.1 SDK ships Kotlin 2.3.0 metadata that
+  the previous 1.9.x compiler could not read. CI now provisions JDK 21.
+
+### Added
+
+- **Plugin Verifier in CI** — Binary API compatibility is now verified across
+  builds 243 → 261 (2024.3, 2025.3, 2026.1) on every change via `verifyPlugin`.
+- **Confirmed Tx3 v0.22.0 compatibility** — Validated against the latest Tx3
+  toolchain (`tx3c 0.22.0`, `trix 0.26.2`): the `trix-project` fixture passes
+  `trix check` and `trix build`, and a new `testLangTour` parser test parses the
+  canonical `lang_tour` example (every language construct) with zero errors.
+  README now carries a Tx3-compatibility badge.
+
 ## [1.0.4] — 2026-02-22
 
 ### Added

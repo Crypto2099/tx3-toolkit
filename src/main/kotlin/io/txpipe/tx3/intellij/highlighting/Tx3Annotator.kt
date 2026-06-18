@@ -29,7 +29,16 @@ class Tx3Annotator : Annotator {
 
             // ── Highlight declaration names ───────────────────────────────────
             is Tx3PartyDeclImpl  -> highlightDeclName(element, holder, Tx3SyntaxHighlighter.KEYWORD_DECL)
-            is Tx3PolicyDeclImpl -> highlightDeclName(element, holder, Tx3SyntaxHighlighter.KEYWORD_DECL)
+            is Tx3PolicyDeclImpl -> {
+                highlightDeclName(element, holder, Tx3SyntaxHighlighter.KEYWORD_DECL)
+                if (element.isBlockBodyWithoutHash()) {
+                    val keyword = element.nameIdentifier ?: element
+                    holder.newAnnotation(
+                        HighlightSeverity.WARNING,
+                        "Policy block is missing a 'hash' property and may fail on 'trix build'"
+                    ).range(keyword.textRange).create()
+                }
+            }
             is Tx3TypeDeclImpl   -> highlightDeclName(element, holder, Tx3SyntaxHighlighter.BUILTIN_TYPE)
             is Tx3RecordDeclImpl -> highlightDeclName(element, holder, Tx3SyntaxHighlighter.BUILTIN_TYPE)
             is Tx3TxDeclImpl     -> highlightDeclName(element, holder, Tx3SyntaxHighlighter.KEYWORD_DECL)
@@ -150,28 +159,46 @@ class Tx3Annotator : Annotator {
             }
             CachedValueProvider.Result.create(names, PsiModificationTracker.MODIFICATION_COUNT)
         }
-        if (name in fileLevelNames) return
+
+        var resolved = name in fileLevelNames
 
         // Tx-local scope — cached per tx declaration
-        val containingTx = PsiTreeUtil.getParentOfType(ref, Tx3TxDeclImpl::class.java)
-        if (containingTx != null) {
-            val txLocalNames = CachedValuesManager.getCachedValue(containingTx) {
-                val names = buildSet {
-                    containingTx.params().forEach      { it.name?.let { n -> add(n) } }
-                    containingTx.inputBlocks().forEach  { it.name?.let { n -> add(n) } }
-                    containingTx.outputBlocks().forEach { it.name?.let { n -> add(n) } }
-                    PsiTreeUtil.findChildrenOfType(containingTx, Tx3LetBindingImpl::class.java)
-                        .forEach { lb -> lb.name?.let { add(it) } }
+        if (!resolved) {
+            val containingTx = PsiTreeUtil.getParentOfType(ref, Tx3TxDeclImpl::class.java)
+            if (containingTx != null) {
+                val txLocalNames = CachedValuesManager.getCachedValue(containingTx) {
+                    val names = buildSet {
+                        containingTx.params().forEach      { it.name?.let { n -> add(n) } }
+                        containingTx.inputBlocks().forEach  { it.name?.let { n -> add(n) } }
+                        containingTx.outputBlocks().forEach { it.name?.let { n -> add(n) } }
+                        PsiTreeUtil.findChildrenOfType(containingTx, Tx3LetBindingImpl::class.java)
+                            .forEach { lb -> lb.name?.let { add(it) } }
+                    }
+                    CachedValueProvider.Result.create(names, PsiModificationTracker.MODIFICATION_COUNT)
                 }
-                CachedValueProvider.Result.create(names, PsiModificationTracker.MODIFICATION_COUNT)
+                resolved = name in txLocalNames
             }
-            if (name in txLocalNames) return
         }
 
-        holder.newAnnotation(
-            HighlightSeverity.WEAK_WARNING,
-            "Unresolved reference: '$name'"
-        ).range(ref.textRange).create()
+        if (!resolved) {
+            holder.newAnnotation(
+                HighlightSeverity.WEAK_WARNING,
+                "Unresolved reference: '$name'"
+            ).range(ref.textRange).create()
+            return
+        }
+
+        // Warn when a block-body policy is used as an argument in a call expression
+        val target = ref.reference?.resolve()
+        if (target is Tx3PolicyDeclImpl && target.isBlockBodyWithoutHash()) {
+            val inCallExpr = PsiTreeUtil.getParentOfType(ref, Tx3CallExprImpl::class.java)
+            if (inCallExpr != null) {
+                holder.newAnnotation(
+                    HighlightSeverity.WARNING,
+                    "Policy '${name}' uses block-body syntax and may fail on 'trix build'"
+                ).range(ref.textRange).create()
+            }
+        }
     }
 
     // ── Call Site Highlighting ────────────────────────────────────────────────

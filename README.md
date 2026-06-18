@@ -1,10 +1,22 @@
 # Tx3 Toolkit
 
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](CHANGELOG.md)
+[![JetBrains IDEs](https://img.shields.io/badge/IntelliJ%20Platform-2024.3%E2%80%932026.1%20(243%E2%80%93261)-orange)](https://plugins.jetbrains.com/)
+[![Tx3 compatible](https://img.shields.io/badge/Tx3-v0.22.0-ff007f)](https://github.com/tx3-lang/tx3/releases/tag/v0.22.0)
+[![trix](https://img.shields.io/badge/trix-0.26.2-ff007f)](https://github.com/tx3-lang/trix)
+
 **White-glove Tx3 language support for all JetBrains IDEs** (IntelliJ IDEA,
 WebStorm, Rider, CLion, etc.)
 
 Tx3 is a DSL for describing UTxO protocol interfaces on
 Cardano. → [Tx3 Documentation](https://docs.txpipe.io/tx3/) | [GitHub](https://github.com/tx3-lang/tx3)
+
+> **Tx3 compatibility:** confirmed against **Tx3 `v0.22.0`** (compiler `tx3c 0.22.0`,
+> toolchain `trix 0.26.2`). Compatibility is validated in CI two ways: the
+> `trix check`/`trix build` fixture in `src/test/testData/trix-project/`, and the
+> `testLangTour` parser test, which parses the canonical `lang_tour` example with
+> zero errors. **When bumping to a newer Tx3 release, update these badges, refresh
+> `LangTour.tx3` from `tx3_example_get lang_tour`, and re-run the checks.**
 
 ---
 
@@ -204,9 +216,9 @@ tx3-toolkit/
 
 ### Prerequisites
 
-- JDK 17+
-- Gradle 8.6 (wrapper included)
-- IntelliJ IDEA (to run/debug the plugin)
+- JDK 21+
+- Gradle 9.0 (wrapper included)
+- IntelliJ IDEA 2024.3+ (to run/debug the plugin)
 
 ### Development Build
 

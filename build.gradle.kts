@@ -1,28 +1,42 @@
 import org.jetbrains.grammarkit.tasks.GenerateLexerTask
 import org.jetbrains.grammarkit.tasks.GenerateParserTask
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.22"
-    id("org.jetbrains.intellij") version "1.17.2"
-    id("org.jetbrains.grammarkit") version "2022.3.2"
+    // Kotlin must match the platform's bundled compiler: 2026.1 (build 261) ships
+    // K2.3.20 metadata, which a 1.9.x compiler cannot read.
+    id("org.jetbrains.kotlin.jvm") version "2.3.20"
+    // Migrated from the deprecated org.jetbrains.intellij (1.x) to the
+    // IntelliJ Platform Gradle Plugin (2.x) for 2026+ IDE compatibility.
+    id("org.jetbrains.intellij.platform") version "2.16.0"
+    id("org.jetbrains.grammarkit") version "2022.3.2.2"
 }
 
 group = "io.txpipe"
-version = "1.0.4"
+version = "2.0.0"
 
 repositories {
     mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
-}
+    // ── IntelliJ Platform target SDK + bundled deps ───────────────────────────
+    intellijPlatform {
+        // Build against 2026.1 (build 261). Since 2025.3 (253), JetBrains no longer
+        // publishes a separate IntelliJ IDEA Community ("IC") artifact — the unified
+        // IntelliJ IDEA distribution (IntellijIdea) is used instead.
+        // com.intellij.java is intentionally NOT bundled — the Tx3 plugin depends
+        // only on platform + lang modules.
+        create(IntelliJPlatformType.IntellijIdea, "2026.1")
+        testFramework(TestFrameworkType.Platform)
+    }
 
-intellij {
-    version.set("2023.3.2")
-    type.set("IC")
-    plugins.set(listOf("com.intellij.java"))
+    testImplementation("junit:junit:4.13.2")
 }
 
 grammarKit {
@@ -31,69 +45,34 @@ grammarKit {
     grammarKitRelease.set("2022.3")
 }
 
-// ── Lexer generation ──────────────────────────────────────────────────────────
-val generateLexer = tasks.named<GenerateLexerTask>("generateLexer") {
-    sourceFile.set(file("src/main/kotlin/io/txpipe/tx3/intellij/lexer/Tx3Lexer.flex"))
-    targetDir.set("src/main/gen/io/txpipe/tx3/intellij/lexer/")
-    targetClass.set("Tx3FlexLexer")
-    purgeOldFiles.set(true)
-}
-
-// ── Parser generation (disabled — parser is hand-written) ─────────────────────
-val generateParser = tasks.named<GenerateParserTask>("generateParser") {
-    enabled = false
-}
-
-sourceSets {
-    main {
-        java.srcDirs("src/main/gen")
-        kotlin.srcDirs("src/main/kotlin")
-        resources.srcDirs("src/main/resources")
-    }
-    test {
-        kotlin.srcDirs("src/test/kotlin")
-        resources.srcDirs("src/test/testData")
-    }
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
-tasks {
+intellijPlatform {
     // buildSearchableOptions spins up a full headless IDE to index plugin settings
-    // for the Settings search bar. It frequently fails due to sandbox environment
-    // issues unrelated to plugin code and is not critical for a language plugin.
-    buildSearchableOptions {
-        enabled = false
-    }
+    // for the Settings search bar. Not needed for a language plugin and flaky in CI.
+    buildSearchableOptions.set(false)
 
-    // Fix: IntelliJ platform and our resources both contribute colorscheme XMLs;
-    // keep ours and silently drop duplicates from the platform side.
-    processResources {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
+    // The Tx3 plugin uses no GUI forms or @NotNull bytecode instrumentation, so the
+    // Java instrumentation pass is unnecessary (and avoids pulling extra tooling).
+    instrumentCode.set(false)
 
-    compileKotlin {
-        dependsOn(generateLexer)
-        kotlinOptions.jvmTarget = "17"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "17"
-    }
-    compileJava {
-        dependsOn(generateLexer)
-    }
-
-    test {
-        systemProperty("idea.test.src.dir", "${project.projectDir}/src/test/testData")
-    }
-
-    patchPluginXml {
-        sinceBuild.set("233")
-        untilBuild.set("253.*")
+    pluginConfiguration {
+        version.set(project.version.toString())
+        ideaVersion {
+            // sinceBuild is 243 (2024.3): building against the 2026.1 SDK bakes an
+            // invokespecial to InlayHintsProvider.getSettingsLanguage(), a default
+            // interface method absent before 243 — running on 233/241/242 would
+            // throw NoSuchMethodError. The Plugin Verifier confirms 243 → 261.
+            sinceBuild.set("243")
+            untilBuild.set("261.*")
+        }
         changeNotes.set("""
+            <h3>2.0.0</h3>
+            <ul>
+              <li>Added compatibility with 2026.1+ JetBrains IDEs (build 261)</li>
+              <li>Migrated the build to the IntelliJ Platform Gradle Plugin 2.x (the 1.x plugin is deprecated)</li>
+              <li>Upgraded the toolchain to JDK 21, Gradle 9.0, and Kotlin 2.3.20, matching the modern IntelliJ Platform</li>
+              <li>Raised the minimum supported IDE to 2024.3 (build 243); earlier IDEs should stay on 1.0.4</li>
+              <li>Added Plugin Verifier coverage across builds 243 through 261 in CI</li>
+            </ul>
             <h3>1.0.4</h3>
             <ul>
               <li>Added parser support for type aliases (<code>type AssetName = Bytes;</code>)</li>
@@ -117,9 +96,6 @@ tasks {
               <li>Fixed ClassCastException crash when disabling/enabling the plugin in a live session by switching to NoSettings, eliminating classloader serialization entirely</li>
               <li>Fixed plugin icon invisible on light IDE themes; added pluginIcon_dark.svg for dark themes</li>
               <li>Replaced deprecated getDefaultCommonSettings() with customizeDefaults(); removed unused Tx3CodeStyleSettings class</li>
-            </ul>
-            <h3>Added in 1.0.3</h3>
-            <ul>
               <li>Code folding for type declarations, env blocks, and locals blocks</li>
               <li>Code folding for inline record literals with 2 or more fields</li>
               <li>Code folding for variant construction expressions (TypeName::CaseName { … }) with 2 or more fields</li>
@@ -138,31 +114,85 @@ tasks {
             </ul>
             <h3>1.0.0</h3>
             <ul>
-              <li>Initial release</li>
-              <li>Syntax highlighting with semantic color tokens for all Tx3 constructs</li>
-              <li>Smart code completion for keywords, block fields, types, and user-defined symbols</li>
-              <li>Type-aware inlay hints showing parameter and record field types inline</li>
-              <li>Code folding for tx, type, record, party, and policy blocks</li>
-              <li>Structure view and file outliner for quick navigation</li>
-              <li>Live templates for common Tx3 patterns</li>
-              <li>Error annotations with quick-fixes for missing trailing commas</li>
-              <li>Built-in Tx3 color scheme (dark theme)</li>
-              <li>Auto-closing braces, brackets, and parentheses</li>
-              <li>Formatter with correct 4-space indentation and block-aware enter handling</li>
-              <li>New File action with Blank, Simple Transfer, and Vesting Contract templates</li>
-              <li>Support for all Tx3 block types including input*, mint, burn, locals, collateral, and more</li>
-              <li>Support for variant types, generic types, asset literals, and UTXO reference literals</li>
+              <li>Initial release with full Tx3 language support</li>
             </ul>
         """.trimIndent())
     }
 
-    signPlugin {
-        certificateChain.set(System.getenv("CERTIFICATE_CHAIN") ?: "")
-        privateKey.set(System.getenv("PRIVATE_KEY") ?: "")
-        password.set(System.getenv("PRIVATE_KEY_PASSWORD") ?: "")
+    // Plugin Verifier — validates the binary API surface against the full
+    // supported range so 2026 API breaks are caught without installing each IDE.
+    pluginVerification {
+        ides {
+            // Verify the full supported range (sinceBuild 243 → untilBuild 261).
+            // Community ("IC") was published through 2024.3; from 2025.3 (253)
+            // onward only the unified IntelliJ IDEA distribution exists.
+            create(IntelliJPlatformType.IntellijIdeaCommunity, "2024.3")
+            create(IntelliJPlatformType.IntellijIdea, "2025.3")
+            create(IntelliJPlatformType.IntellijIdea, "2026.1")
+        }
     }
 
-    publishPlugin {
-        token.set(System.getenv("PUBLISH_TOKEN") ?: "")
+    signing {
+        certificateChain.set(providers.environmentVariable("CERTIFICATE_CHAIN"))
+        privateKey.set(providers.environmentVariable("PRIVATE_KEY"))
+        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
+    }
+
+    publishing {
+        token.set(providers.environmentVariable("PUBLISH_TOKEN"))
+    }
+}
+
+// ── Lexer generation ──────────────────────────────────────────────────────────
+val generateLexer = tasks.named<GenerateLexerTask>("generateLexer") {
+    sourceFile.set(file("src/main/kotlin/io/txpipe/tx3/intellij/lexer/Tx3Lexer.flex"))
+    // targetOutputDir replaces the deprecated targetDir/targetClass pair; the
+    // generated class name comes from the %class directive in the .flex file.
+    targetOutputDir.set(file("src/main/gen/io/txpipe/tx3/intellij/lexer"))
+    purgeOldFiles.set(true)
+}
+
+// ── Parser generation (disabled — parser is hand-written) ─────────────────────
+tasks.named<GenerateParserTask>("generateParser") {
+    enabled = false
+}
+
+sourceSets {
+    main {
+        java.srcDirs("src/main/gen")
+        kotlin.srcDirs("src/main/kotlin")
+        resources.srcDirs("src/main/resources")
+    }
+    test {
+        kotlin.srcDirs("src/test/kotlin")
+        resources.srcDirs("src/test/testData")
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
+tasks {
+    // Fix: IntelliJ platform and our resources both contribute colorscheme XMLs;
+    // keep ours and silently drop duplicates from the platform side.
+    processResources {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    compileKotlin {
+        dependsOn(generateLexer)
+    }
+    compileJava {
+        dependsOn(generateLexer)
+    }
+
+    test {
+        systemProperty("idea.test.src.dir", "${project.projectDir}/src/test/testData")
     }
 }
