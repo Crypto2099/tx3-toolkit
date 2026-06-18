@@ -57,6 +57,9 @@ jobs:
 
       - name: Install Tx3 toolchain
         if: steps.changed.outputs.skip == 'false'
+        # Authenticate tx3up's GitHub API calls to avoid the anonymous 60/hr limit.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/tx3-lang/up/releases/latest/download/tx3up-installer.sh | sh
           export PATH="$HOME/.cargo/bin:$PATH"

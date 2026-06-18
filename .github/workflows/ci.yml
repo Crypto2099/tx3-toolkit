@@ -88,6 +88,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Tx3 toolchain
+        # tx3up lists GitHub releases for every toolchain component; the anonymous
+        # API limit (60/hr per IP) is shared across runners and gets exhausted.
+        # Passing the Actions token authenticates those calls (~1000/hr per repo).
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/tx3-lang/up/releases/latest/download/tx3up-installer.sh | sh
           export PATH="$HOME/.cargo/bin:$PATH"
